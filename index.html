@@ -189,7 +189,7 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
-        /* НОВЫЕ КАРТОЧКИ В СТИЛЕ СКРИНШОТА 385 */
+        /* НОВЫЕ КАРТОЧКИ В СТИЛЕ СКРИНШОТА 449 */
         
         /* Сетка продуктов для ПК */
         body.pc-version .products-grid {
@@ -224,7 +224,7 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
         }
 
-        /* НОВАЯ КАРТОЧКА ДЛЯ МОБИЛЬНОГО TELEGRAM */
+        /* НОВАЯ КАРТОЧКА ДЛЯ МОБИЛЬНОГО TELEGRAM - ТЕКСТ ПОВЕРХ ИЗОБРАЖЕНИЯ */
         body.mobile-tg-version .product-card {
             background: rgba(255, 255, 255, 0.08);
             border-radius: 16px;
@@ -236,6 +236,7 @@
             display: flex;
             flex-direction: column;
             aspect-ratio: 1/1;
+            position: relative;
         }
 
         body.mobile-tg-version .product-card:active {
@@ -243,7 +244,7 @@
             background: rgba(255, 255, 255, 0.12);
         }
 
-        /* Изображение продукта - НОВЫЙ СТИЛЬ */
+        /* Изображение продукта - ЗАНИМАЕТ ВСЮ КАРТОЧКУ */
         .product-image {
             width: 100%;
             height: 180px;
@@ -254,13 +255,16 @@
 
         body.mobile-tg-version .product-image {
             width: 100%;
-            height: 70%;
+            height: 100%;
             object-fit: cover;
             border-radius: 0;
             margin-bottom: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
-        /* Контент карточки - НОВЫЙ СТИЛЬ */
+        /* Контент карточки - ТЕПЕРЬ АБСОЛЮТНОЕ ПОЗИЦИОНИРОВАНИЕ ПОВЕРХ ИЗОБРАЖЕНИЯ */
         body.pc-version .product-content {
             display: flex;
             flex-direction: column;
@@ -268,12 +272,16 @@
         }
 
         body.mobile-tg-version .product-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
             padding: 12px 8px;
+            background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0.9) 100%);
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            flex-grow: 1;
+            justify-content: flex-end;
+            min-height: 40%;
         }
 
         .product-title {
@@ -289,10 +297,12 @@
 
         body.mobile-tg-version .product-title {
             color: #ffffff;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 0;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
             line-height: 1.2;
+            text-align: center;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
         }
 
         .product-description {
@@ -324,18 +334,36 @@
             display: none;
         }
 
-        /* Бейдж "Новинка" */
+        /* Бейдж "Новинка" - ОБНОВЛЕННЫЙ СТИЛЬ */
         .new-badge {
             position: absolute;
             top: 8px;
-            right: 8px;
+            left: 8px;
             background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
             color: white;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
             padding: 4px 8px;
-            border-radius: 10px;
+            border-radius: 12px;
             text-transform: uppercase;
+            z-index: 2;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Бейдж "Популярное" */
+        .popular-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: linear-gradient(135deg, #8870FF 0%, #7560e0 100%);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            z-index: 2;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         /* Кнопка покупки */
@@ -689,7 +717,7 @@
         };
     }
 
-    // Данные продуктов с флагом "новинка"
+    // Данные продуктов с флагами для разных типов бейджей
     const products = [
         {
             id: 1,
@@ -699,7 +727,7 @@
             price: "10 ★",
             category: "WOMEN",
             image: 'images/angel.jpg',
-            isNew: true
+            badge: "new" // новинка
         },
         {
             id: 2,
@@ -709,7 +737,7 @@
             price: "5 ★",
             category: "WOMEN",
             image: 'images/paris.jpg',
-            isNew: false
+            badge: "popular" // популярное
         },
         {
             id: 3,
@@ -719,7 +747,7 @@
             price: "7 ★",
             category: "WOMEN",
             image: 'images/oblako.jpg',
-            isNew: true
+            badge: "new" // новинка
         },
         {
             id: 4,
@@ -729,7 +757,7 @@
             price: "8 ★",
             category: "kids",
             image: 'images/d1.jpg',
-            isNew: false
+            badge: null // без бейджа
         },
         {
             id: 5,
@@ -738,7 +766,7 @@
             prompt: "Киберпанк улица с неоновыми вывесками, дождь, отражения, ночной город, футуристическая архитектура, детализированно",
             price: "8 ★",
             category: "fantasy",
-            isNew: true
+            badge: "new" // новинка
         },
         {
             id: 6,
@@ -747,7 +775,7 @@
             prompt: "Волшебный лес со светящимися грибами, магические существа, фэнтези, загадочная атмосфера, 4K, высокое качество",
             price: "6 ★",
             category: "fantasy",
-            isNew: false
+            badge: "popular" // популярное
         }
     ];
 
@@ -792,11 +820,18 @@
         
         container.innerHTML = filteredProducts.map(product => {
             if (isMobileTG) {
-                // НОВАЯ ВЕРСИЯ ДЛЯ МОБИЛЬНОГО TELEGRAM - стиль скриншота 385
+                // НОВАЯ ВЕРСИЯ ДЛЯ МОБИЛЬНОГО TELEGRAM - стиль скриншота 449
+                let badgeHtml = '';
+                if (product.badge === "new") {
+                    badgeHtml = '<div class="new-badge">Новинка</div>';
+                } else if (product.badge === "popular") {
+                    badgeHtml = '<div class="popular-badge">Популярное</div>';
+                }
+                
                 return `
                     <div class="product-card" onclick="showProductDetails(${product.id})">
-                        ${product.image ? `<img class="product-image" src="${product.image}" alt="${product.title}">` : '<div class="product-image" style="display: flex; align-items: center; justify-content: center; font-size: 48px; background: rgba(255,255,255,0.1);">🖼️</div>'}
-                        ${product.isNew ? '<div class="new-badge">Новинка</div>' : ''}
+                        ${product.image ? `<img class="product-image" src="${product.image}" alt="${product.title}">` : '<div class="product-image" style="display: flex; align-items: center; justify-content: center; font-size: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">🖼️</div>'}
+                        ${badgeHtml}
                         <div class="product-content">
                             <div class="product-title">${product.title}</div>
                         </div>
