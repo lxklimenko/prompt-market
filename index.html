@@ -76,6 +76,52 @@
             line-height: 1.4;
         }
 
+        /* Поиск для ПК */
+        body.pc-version .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        body.pc-version .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            outline: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        body.pc-version .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Поиск для мобильного Telegram */
+        body.mobile-tg-version .search-container {
+            padding: 0 20px 15px;
+        }
+
+        body.mobile-tg-version .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            outline: none;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        body.mobile-tg-version .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         /* Категории для ПК */
         body.pc-version .categories {
             display: flex;
@@ -106,7 +152,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            padding: 20px;
+            padding: 0 20px 20px;
             margin-bottom: 0;
         }
 
@@ -126,6 +172,21 @@
             background: linear-gradient(135deg, #8870FF 0%, #7560e0 100%);
             border-color: #8870FF;
             transform: scale(1.02);
+        }
+
+        /* Сообщение о результатах поиска */
+        .search-results-info {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        body.pc-version .search-results-info {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        body.mobile-tg-version .search-results-info {
+            color: rgba(255, 255, 255, 0.7);
         }
 
         /* Сетка продуктов для ПК */
@@ -531,12 +592,19 @@
         <p class="subtitle">Лучшие промпты для генерации изображений</p>
     </div>
 
+    <!-- Поисковая строка -->
+    <div class="search-container">
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Поиск промптов...">
+    </div>
+
     <div class="categories">
         <button class="category-btn active" onclick="filterCategory('all')">Все</button>
         <button class="category-btn" onclick="filterCategory('WOMEN')">WOMEN</button>
         <button class="category-btn" onclick="filterCategory('kids')">Детское</button>
         <button class="category-btn" onclick="filterCategory('fantasy')">Фэнтези</button>
     </div>
+
+    <div class="search-results-info" id="searchResultsInfo"></div>
 
     <div class="products-grid" id="products-container">
         <div class="loading">Загрузка товаров...</div>
@@ -661,9 +729,37 @@
         }
     ];
 
-    function loadProducts(category = 'all') {
+    // Переменные для фильтрации
+    let currentCategory = 'all';
+    let currentSearchTerm = '';
+
+    function loadProducts(category = currentCategory, searchTerm = currentSearchTerm) {
         const container = document.getElementById('products-container');
-        const filteredProducts = category === 'all' ? products : products.filter(p => p.category === category);
+        const resultsInfo = document.getElementById('searchResultsInfo');
+        
+        // Фильтруем продукты
+        let filteredProducts = category === 'all' ? products : products.filter(p => p.category === category);
+        
+        // Применяем поиск, если есть поисковый запрос
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filteredProducts = filteredProducts.filter(p => 
+                p.title.toLowerCase().includes(term) ||
+                p.description.toLowerCase().includes(term) ||
+                p.prompt.toLowerCase().includes(term)
+            );
+        }
+
+        // Показываем информацию о результатах
+        if (searchTerm && filteredProducts.length > 0) {
+            resultsInfo.textContent = `Найдено промптов: ${filteredProducts.length}`;
+            resultsInfo.style.display = 'block';
+        } else if (searchTerm && filteredProducts.length === 0) {
+            resultsInfo.textContent = 'По вашему запросу ничего не найдено';
+            resultsInfo.style.display = 'block';
+        } else {
+            resultsInfo.style.display = 'none';
+        }
 
         if (filteredProducts.length === 0) {
             container.innerHTML = '<div class="loading">Товары не найдены</div>';
@@ -703,9 +799,15 @@
     }
 
     function filterCategory(category) {
+        currentCategory = category;
         document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
         event.target.classList.add('active');
-        loadProducts(category);
+        loadProducts(currentCategory, currentSearchTerm);
+    }
+
+    function handleSearch(event) {
+        currentSearchTerm = event.target.value;
+        loadProducts(currentCategory, currentSearchTerm);
     }
 
     function showProductDetails(productId) {
@@ -776,6 +878,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         detectEnvironment();
         loadProducts();
+        
+        // Добавляем обработчик для поиска
+        document.getElementById('searchInput').addEventListener('input', handleSearch);
         
         // Обработчик изменения размера окна
         window.addEventListener('resize', detectEnvironment);
